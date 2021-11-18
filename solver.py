@@ -31,7 +31,7 @@ def compute_total(all_tasks, tasks_list):
         return total
 
 # Here's an example of how to run your solver.
-in_directory = "C:/CS170_Final_Project/inputs/"
+in_directory = "C:/CS170_Final/inputs/"
 for input_path in os.listdir(in_directory):
     output_path = 'outputs/' + input_path[:-3] + '.out'
     tasks = read_input_file(in_directory+input_path)
