@@ -6,6 +6,9 @@ TOTAL_MINUTES = 1440
 MAX_DURATION = 60
 MAX_PROFIT = 100 #exclusively
 
+# create_file function creates a new input file with num_tasks tasks, and
+#it also creates a folder that stores all input files with num_tasks tasks
+#if there isn't already one
 def create_file(num_tasks):
     path = cwd + "/inputs/" + str(num_tasks) + "-Inputs"
     if not os.path.isdir(path):
@@ -16,7 +19,7 @@ def create_file(num_tasks):
     file_path = path + "/" + file_name
     generate_content(file_path, num_tasks)
 
-
+# generate_content function generates num_tasks tasks for a file
 def generate_content(file_path, num_tasks):
     # each task has a format of : (int)taskId (int)taskDeadline (int)taskDuration (float)taskProfit
     f = open(file_path, "w")
