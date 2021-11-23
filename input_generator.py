@@ -31,9 +31,10 @@ def generate_content(file_path, num_tasks):
         f.write("\n")
         taskDeadline = random.randint(1, TOTAL_MINUTES)
         taskDuration = random.randint(1, MAX_DURATION)
-        taskProfit = random.random() * MAX_PROFIT
+        taskProfit = (1-random.random()) * MAX_PROFIT
         f.write("%d %d %d %.3f" % (taskId, taskDeadline, taskDuration, taskProfit))
 
     f.close()
 
-#create_file(200)
+for i in range(500):
+    create_file(150)

@@ -1,0 +1,23 @@
+(greedy_solve) using weight function (calculate_weight_1)
+Average on 100 inputs: 3163.026854077361
+Average on 150 inputs: 4081.812951899809
+Average on 200 inputs: 4790.98227000846
+
+(heuristic) using weight scalars (1, 0, 0)
+Average is 2732.7544845776647 for  100-Inputs/
+Average is 3273.0541425402416 for  150-Inputs/
+Average is 3612.0351754531553 for  200-Inputs/
+
+(heuristic) using weight scalars (0, 1, 0)
+Average is 2505.9120329866682 for  100-Inputs/
+Average is 2457.215878414913 for  150-Inputs/
+Average is 2456.1778912479963 for  200-Inputs/
+
+(heuristic) using weight scalars (0, 0, 1)
+Average is 2704.7180322462746 for  100-Inputs/
+Average is 3323.130356848514 for  150-Inputs/
+Average is 3833.3679500440817 for  200-Inputs/
+
+(heuristic) using weight scalars (1, 1, 1)
+
+

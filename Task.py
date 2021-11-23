@@ -84,6 +84,41 @@ class Task:
         """
         minutes_late = max(0, minutes_late)
         return self.get_max_benefit() * math.exp(-0.0170 * minutes_late)
+    
+    def hypothetical_gain(self, time):
+        """[summary]
+
+        Args:
+            time (int): Current time of the day.
+
+        Returns:
+            The hypothetical gain of doing this specific task at the given time of the day.
+        """
+        return self.get_late_benefit(time + self.get_duration() - self.get_deadline())
+    
+    def calculate_weight_1(self, time):
+        """[summary]
+        Divide by duration of task to prioritize tasks that take shorter time
+        """
+        return self.hypothetical_gain(time)/self.get_duration()
+    
+    def calculate_weight_2(self, time):
+        """[summary]
+        Divide by duration of task to prioritize tasks that take shorter time and take in account of deadline closeness as well as efficiency
+        """
+        return self.weight_gain(time) * self.weight_efficiency() * self.weight_urgency(time)
+    
+    def weight_gain(self, time):
+        return self.hypothetical_gain(time) / 100
+
+    def weight_urgency(self, time):
+        return max(0, 0.1/(0.1 + self.get_deadline() - self.get_duration() - time))
+    
+    def weight_efficiency(self):
+        return self.get_max_benefit() / self.get_duration()
+    
+    def heuristic(self, time, c1, c2, c3):
+        return self.weight_gain(time) * c1 + self.weight_urgency(time) * c2 + self.weight_efficiency() * c3
 
     def __str__(self):
         """
