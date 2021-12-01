@@ -4,6 +4,7 @@ import itertools
 import math
 import pickle as pkl
 import random
+import time
 
 def preprocess_into_intervals(tasks, num_intervals, less_than = lambda task1, task2: task1.get_deadline() < task2.get_deadline()):
     """[summary]
@@ -99,33 +100,38 @@ def greedy_solve_intervals(I, num_intervals, c1, c2, c3):
 
 def annealing(tasks, solution):
     num_tasks = len(tasks)
-    is_used = [0 for _ in range(num_tasks)]
-    is_used_original = is_used
+    is_used = [False for _ in range(num_tasks)]
     for index in solution:
-        is_used[index - 1] = 1
+        is_used[index - 1] = True
+    is_used_original = [b for b in is_used]
+    
     value = compute_total(tasks, solution)
     
     improved = False
     
     j = 0
-    while(not improved and j < 150):
+    # MAX_ITERATIONS = math.inf
+    MAX_ITERATIONS = 1
+    while(not improved and j < MAX_ITERATIONS):
+        # print(is_used)
+        
         new_solution = solution
-        is_used = is_used_original
+        is_used = [b for b in is_used_original]
         random_task_index = random.randint(0, len(solution) - 1)
         random_swap_index = random.randint(0, len(is_used) - 1)
         while (is_used[random_swap_index]):
             random_swap_index = random.randint(0, len(is_used) - 1)
             
         new_solution[random_task_index] = random_swap_index + 1 # making the swap
-        is_used[random_swap_index] = 1
-        is_used[random_task_index] = 0
+        is_used[random_swap_index] = True
+        is_used[random_task_index] = False
         while(calculate_duration(tasks, new_solution) > 1440):
             if (random_task_index < len(new_solution) - 2):
                 new_solution.pop(random_task_index + 1)
-                is_used[random_task_index + 1] = 0
+                is_used[random_task_index + 1] = False
             elif (random_task_index > 0):
                 new_solution.pop(random_task_index - 1)
-                is_used[random_task_index - 1] = 0
+                is_used[random_task_index - 1] = False
                 
         current_duration = calculate_duration(tasks, new_solution)
         # current_index = 0
@@ -199,7 +205,7 @@ def run_all_trials(in_directory, number_inputs, c1 = 0, c2 = 0, c3 = 0):
     return average/count
 
 def run_sample_trial(c1 = 0, c2 = 0, c3 = 0):
-    tasks = read_input_file("C:/CS170_Final/all_inputs/sample.in")
+    tasks = read_input_file("C:/CS170_Final/inputs/small/small-3.in")
     # I = preprocess_into_intervals(tasks, 10)
     # size = 0
     # print(I)
@@ -210,12 +216,29 @@ def run_sample_trial(c1 = 0, c2 = 0, c3 = 0):
     # output = greedy_solve(tasks, c1, c2, c3)
     
     output = greedy_solve(tasks, c1, c2, c3)
-    print(compute_total(tasks, output))
-    for i in range(10):
+    output_original = [x for x in output]
+    value = compute_total(tasks, output)
+    print(value)
+    new_value = 0
+    for _ in range(3):
         output = annealing(tasks, output)
-    
+        new_value = compute_total(tasks, output)
+        while value >= new_value:
+            output = annealing(tasks, [x for x in output_original])
+            new_value = compute_total(tasks, output)
+            # print(new_value, output == output_original)
+        value = new_value
+        output_original = [x for x in output]
+        # print(value)
     return compute_total(tasks, output)
-
+    
+    # output = greedy_solve(tasks, c1, c2, c3)
+    # value = compute_total(tasks, output)
+    # print(value)
+    # for i in range(1):
+    #     output = annealing(tasks, output)
+    # return compute_total(tasks, output)    
+    
 # Here's an example of how to run your solver.
 directory = "C:/CS170_Final/inputs/"
 input_100 = "small/"
