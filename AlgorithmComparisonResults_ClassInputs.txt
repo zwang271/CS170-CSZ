@@ -1,0 +1,10 @@
+(greedy_solve) using weight function (calculate_weight_1)
+Small: 2894.433516084128
+Medium: 3742.3814128839504
+Large: 4377.787804447143
+
+(greedy_solve) using weight function (calculate_weight_2)
+Small: 3275.297841318007
+Medium: 3784.4606572834773
+Large: 4106.315286456156
+

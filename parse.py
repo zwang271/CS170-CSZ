@@ -28,7 +28,9 @@ def read_input_file(path: str):
         assert num_tasks <= 200,  'Too many tasks'
         
         tasks = []
+        #print([path])
         for i in range(1, num_tasks + 1):
+            #print(i)
             task_parameters = input_lines[i].split()
 
             assert len(task_parameters) == 4, 'The number of parameters in task {} is incorrect'.format(i)

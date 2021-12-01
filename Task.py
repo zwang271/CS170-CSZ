@@ -118,7 +118,13 @@ class Task:
         return self.get_max_benefit() / self.get_duration()
     
     def heuristic(self, time, c1, c2, c3):
+        # print("gain: ", self.weight_gain(time))
+        # print("urgency: ", self.weight_urgency(time))
+        # print("efficiency: ", self.weight_efficiency())  
         return self.weight_gain(time) * c1 + self.weight_urgency(time) * c2 + self.weight_efficiency() * c3
+    
+    def exponential_heuristic(self, time, c1, c2, c3):
+        return math.exp(c1*self.weight_gain(time)) * math.exp(c2*self.weight_urgency(time)) * math.exp(c3*self.weight_efficiency())
 
     def __str__(self):
         """
@@ -129,3 +135,6 @@ class Task:
         Task 0 has deadline 1, duration 2, and max benefit 3.0
         """
         return "Task {} has deadline {}, duration {}, and max benefit {}".format(self.get_task_id(), self.get_deadline(), self.get_duration(), self.get_max_benefit())
+
+    
+        
