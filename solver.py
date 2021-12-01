@@ -98,6 +98,20 @@ def greedy_solve_intervals(I, num_intervals, c1, c2, c3):
             I[time_index] += I[time_index - 1]
     return answer           
 
+def initial_solve(tasks):
+    solution = []
+    used = [False for _ in range(len(tasks))]
+    time = 0
+    
+    i = 0
+    while time <= 1440 and not all(used):
+        time += tasks[i].get_duration()
+        if time > 1440:
+            return solution
+        solution.append(tasks[i].get_task_id())
+        i += 1
+    return solution
+        
 def annealing(tasks, solution):
     num_tasks = len(tasks)
     is_used = [False for _ in range(num_tasks)]
@@ -215,12 +229,14 @@ def run_sample_trial(c1 = 0, c2 = 0, c3 = 0):
     # output = greedy_solve_intervals(I ,10 , c1, c2, c3)
     # output = greedy_solve(tasks, c1, c2, c3)
     
-    output = greedy_solve(tasks, c1, c2, c3)
+    # output = greedy_solve(tasks, c1, c2, c3)
+    print("greedy solve: ", compute_total(tasks, greedy_solve(tasks, c1, c2, c3)))
+    output = initial_solve(tasks)
     output_original = [x for x in output]
     value = compute_total(tasks, output)
     print(value)
     new_value = 0
-    for _ in range(3):
+    for _ in range(110):
         output = annealing(tasks, output)
         new_value = compute_total(tasks, output)
         while value >= new_value:
