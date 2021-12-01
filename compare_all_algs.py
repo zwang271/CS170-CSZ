@@ -16,6 +16,7 @@ def write_to_output(size, answers):
     in_directory = "C:/CS170_Final/inputs/" + size + "/"
     for input_path in os.listdir(in_directory):
         output = answers[i][0:len(answers[i]) - 1]
+        print(output)
         output_path = "C:/CS170_Final/outputs/" + size + "/" + input_path[:-3] + '.out'
         write_output_file(output_path, output)
         i += 1
@@ -71,9 +72,3 @@ print(calculate_average(best_large))
 write_to_output("small", best_small)
 write_to_output("medium", best_medium)
 write_to_output("large", best_large)
-
-
-
-    
-
-
