@@ -173,7 +173,6 @@ def anneal(tasks, solution, randomness = 0):
     
     unused = [x for x in unused_original] # List of unused task IDs that will be updated
     solution_new = [x for x in solution] # List of task IDs in the solution that will be updated
-    value = 0 # Value of the solution that will be updated
     locations_to_try = [i for i in range(len(solution))] # Locations to try external swaps for 
     
     # Search for a swap that improves the original solution
@@ -226,11 +225,15 @@ def anneal(tasks, solution, randomness = 0):
             if compute_total(tasks, solution_new) > value_original:
                 return solution_new
     
-    # for i in range(len(solution_new)):
-    #     for j in range(i, len(solution_new)):
-    #         temp = solution_new[i]
-    #         solution_new[i] = solution_new[j]
-    #         solution_new[j] = temp
+    solution_new = [x for x in solution]
+    for i in range(len(solution_new)):
+        for j in range(i, len(solution_new)):
+            solution_new = [x for x in solution]
+            temp = solution_new[i]
+            solution_new[i] = solution_new[j]
+            solution_new[j] = temp
+            if compute_total(tasks, solution_new) > value_original:
+                return solution_new
         
             
     return solution # Return the original solution if no advantageous swap is found
@@ -281,25 +284,25 @@ def run_anneal(trial_name, iterations, c1 = 0, c2 = 0, c3 = 0):
     # Benchmark from greedy
     tasks = read_input_file("C:/CS170_Final/inputs/" + trial_name)
     greedy_output = greedy_solve(tasks, c1, c2, c3)
-    # print("greedy value: ", compute_total(tasks, greedy_output))
+    print("greedy value: ", compute_total(tasks, greedy_output))
     
     # Initial naive solve
     # output = initial_solve(tasks)
     output = [x for x in greedy_output]
     value = compute_total(tasks, output)
     initial_value = value
-    # print("initial value: ", initial_value)
+    print("initial value: ", initial_value)
     
     previous = None
     for i in range(iterations):
         output = anneal(tasks, output)
-        # print(compute_total(tasks, output))
+        print(compute_total(tasks, output))
         if previous == compute_total(tasks, output):
             break
         previous = compute_total(tasks, output)
     
-    # print("final value: ", compute_total(tasks, output))
-    # print("improvement from greedy: ", compute_total(tasks, output) - compute_total(tasks, greedy_output))
+    print("final value: ", compute_total(tasks, output))
+    print("improvement from greedy: ", compute_total(tasks, output) - compute_total(tasks, greedy_output))
     return compute_total(tasks, output)
       
 def run_trial(trial_name, c1 = 0, c2 = 0, c3 = 0):
@@ -373,7 +376,7 @@ input_200 = "large/"
 #         best = current
 # print("best is: ", best)
 
-print(run_anneal("small/small-1.in", 150))
+run_anneal("small/small-2.in", 150)
         
 # print(run_all_trials(directory, input_100))
 # print(run_all_trials(directory, input_150))
