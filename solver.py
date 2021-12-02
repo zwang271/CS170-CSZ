@@ -177,6 +177,7 @@ def anneal(tasks, solution, randomness = 0):
     
     # Search for a swap that improves the original solution
     # Stop searching if there are no more unused tasks (we ran out of tasks)
+    while_break_flag = False
     while len(unused) > 0 and len(locations_to_try) > 0: 
         # set stuff up again
         chosen_index = random.choice(locations_to_try) # Choose a random index in location_to_try
@@ -223,19 +224,30 @@ def anneal(tasks, solution, randomness = 0):
             
             # Return this new solution if it is better
             if compute_total(tasks, solution_new) > value_original:
-                return solution_new
+                while_break_flag = True
+                break
+        if while_break_flag:
+            break
     
-    solution_new = [x for x in solution]
-    for i in range(len(solution_new)):
-        for j in range(i, len(solution_new)):
-            solution_new = [x for x in solution]
-            temp = solution_new[i]
-            solution_new[i] = solution_new[j]
-            solution_new[j] = temp
-            if compute_total(tasks, solution_new) > value_original:
-                return solution_new
+    # Internal swap
+    if while_break_flag:
+        solution_swap = [x for x in solution_new]
+    else:
+        solution_swap = [x for x in solution]
+    solution_swap_original = [x for x in solution_swap]
         
-            
+    for i in range(len(solution_swap)):
+        for j in range(i, len(solution_swap)):
+            solution_swap = [x for x in solution_swap_original]
+            temp = solution_swap[i]
+            solution_swap[i] = solution_swap[j]
+            solution_swap[j] = temp
+            if compute_total(tasks, solution_swap) > value_original:
+                return solution_swap
+    
+    if while_break_flag:
+        return solution_new
+        
     return solution # Return the original solution if no advantageous swap is found
 
 def calculate_duration(tasks, solution):
@@ -279,32 +291,7 @@ def run_all_trials(in_directory, number_inputs, c1 = 0, c2 = 0, c3 = 0):
         pkl.dump(answers, f)
     
     return average/count
-
-def run_anneal(trial_name, iterations, c1 = 0, c2 = 0, c3 = 0):
-    # Benchmark from greedy
-    tasks = read_input_file("C:/CS170_Final/inputs/" + trial_name)
-    greedy_output = greedy_solve(tasks, c1, c2, c3)
-    print("greedy value: ", compute_total(tasks, greedy_output))
-    
-    # Initial naive solve
-    # output = initial_solve(tasks)
-    output = [x for x in greedy_output]
-    value = compute_total(tasks, output)
-    initial_value = value
-    print("initial value: ", initial_value)
-    
-    previous = None
-    for i in range(iterations):
-        output = anneal(tasks, output)
-        print(compute_total(tasks, output))
-        if previous == compute_total(tasks, output):
-            break
-        previous = compute_total(tasks, output)
-    
-    print("final value: ", compute_total(tasks, output))
-    print("improvement from greedy: ", compute_total(tasks, output) - compute_total(tasks, greedy_output))
-    return compute_total(tasks, output)
-      
+     
 def run_trial(trial_name, c1 = 0, c2 = 0, c3 = 0):
     tasks = read_input_file("C:/CS170_Final/inputs/small/" + trial_name)
     # I = preprocess_into_intervals(tasks, 10)
@@ -345,6 +332,50 @@ def run_trial(trial_name, c1 = 0, c2 = 0, c3 = 0):
     #     output = annealing(tasks, output)
     # return compute_total(tasks, output)    
     
+def run_anneal(trial_name, iterations, verbose = False, c1 = 0, c2 = 0, c3 = 0):
+    # Benchmark from greedy
+    tasks = read_input_file("C:/CS170_Final/inputs/" + trial_name)
+    greedy_output = greedy_solve(tasks, c1, c2, c3)
+    if verbose:
+        print("greedy value: ", compute_total(tasks, greedy_output))
+    
+    # Initial naive solve
+    # output = initial_solve(tasks)
+    output = [x for x in greedy_output]
+    value = compute_total(tasks, output)
+    initial_value = value
+    if verbose:
+        print("initial value: ", initial_value)
+    
+    previous = None
+    for i in range(iterations):
+        output = anneal(tasks, output)
+        if verbose:
+            print(compute_total(tasks, output))
+        if previous == compute_total(tasks, output):
+            break
+        previous = compute_total(tasks, output)
+    
+    if verbose:
+        print("final value: ", compute_total(tasks, output))
+        print("improvement from greedy: ", compute_total(tasks, output) - compute_total(tasks, greedy_output))
+    return output
+ 
+def run_anneal_all(size, iterations = 1000, c1 = 0, c2 = 0, c3 = 0):
+    average = 0
+    count = 0
+    for input_path in os.listdir("C:/CS170_Final/inputs/" + size):
+        tasks = read_input_file("C:/CS170_Final/inputs/" + size + input_path)
+        output = run_anneal(size + input_path, iterations)
+        value = compute_total(tasks, output)
+        print(input_path + ": ", value)
+        average += value
+        count += 1
+        
+        output_path = "C:/CS170_Final/outputs/" + size + input_path[:-3] + '.out'
+        write_output_file(output_path, output)
+    return average/count
+
 
 # RUNNING THE SOLVER
 directory = "C:/CS170_Final/inputs/"
@@ -376,7 +407,8 @@ input_200 = "large/"
 #         best = current
 # print("best is: ", best)
 
-run_anneal("small/small-2.in", 150)
+# run_anneal("small/small-102.in", 100)
+run_anneal_all("small/")
         
 # print(run_all_trials(directory, input_100))
 # print(run_all_trials(directory, input_150))
