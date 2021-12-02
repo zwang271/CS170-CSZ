@@ -118,64 +118,123 @@ def annealing(tasks, solution):
     for index in solution:
         is_used[index - 1] = True
     is_used_original = [b for b in is_used]
-    
-    value = compute_total(tasks, solution)
-    
-    improved = False
-    
-    j = 0
-    # MAX_ITERATIONS = math.inf
-    MAX_ITERATIONS = 1
-    while(not improved and j < MAX_ITERATIONS):
-        # print(is_used)
         
-        new_solution = solution
-        is_used = [b for b in is_used_original]
-        random_task_index = random.randint(0, len(solution) - 1)
+    # give a random annealing instance  
+    new_solution = solution
+    is_used = [b for b in is_used_original]
+    random_task_index = random.randint(0, len(solution) - 1)
+    random_swap_index = random.randint(0, len(is_used) - 1)
+    while (is_used[random_swap_index]):
         random_swap_index = random.randint(0, len(is_used) - 1)
-        while (is_used[random_swap_index]):
-            random_swap_index = random.randint(0, len(is_used) - 1)
-            
-        new_solution[random_task_index] = random_swap_index + 1 # making the swap
-        is_used[random_swap_index] = True
-        is_used[random_task_index] = False
-        while(calculate_duration(tasks, new_solution) > 1440):
-            if (random_task_index < len(new_solution) - 2):
-                new_solution.pop(random_task_index + 1)
-                is_used[random_task_index + 1] = False
-            elif (random_task_index > 0):
-                new_solution.pop(random_task_index - 1)
-                is_used[random_task_index - 1] = False
-                
-        current_duration = calculate_duration(tasks, new_solution)
-        # current_index = 0
-        # for i in range(is_used):
-        #     if is_used[i] == 0:
-        #         if current_duration + tasks[i].get_duration() <= 1440:
-        #             if current_value + tasks[i].hypothetical_gain(current_duration):
-        #                 current_value = compute_total(tasks, new_solution) + tasks[i].hypothetical_gain(current_duration)
         
-        while current_duration <= 1440 and not all(is_used):
-            max_weight = -1
-            max_index = -1
-            for task in tasks:
-                if not is_used[task.get_task_id() - 1]:
-                    current_weight = task.calculate_weight_1(current_duration)
-                    if max_weight < current_weight:
-                        max_weight = current_weight 
-                        max_index = task.get_task_id() - 1 #smol egg
-            current_duration += tasks[max_index].get_duration()
-            if current_duration > 1440:
-                break
-            new_solution.append(max_index + 1)
-            is_used[max_index] = True
-                                    
-        if (compute_total(tasks, new_solution) > value):
-            improved = True
-        j += 1
+    new_solution[random_task_index] = random_swap_index + 1 # making the swap
+    is_used[random_swap_index] = True
+    is_used[random_task_index] = False
+    while(calculate_duration(tasks, new_solution) > 1440):
+        if (random_task_index < len(new_solution) - 2):
+            new_solution.pop(random_task_index + 1)
+            is_used[random_task_index + 1] = False
+        elif (random_task_index > 0):
+            new_solution.pop(random_task_index - 1)
+            is_used[random_task_index - 1] = False
+            
+    current_duration = calculate_duration(tasks, new_solution)
+    # current_index = 0
+    # for i in range(is_used):
+    #     if is_used[i] == 0:
+    #         if current_duration + tasks[i].get_duration() <= 1440:
+    #             if current_value + tasks[i].hypothetical_gain(current_duration):
+    #                 current_value = compute_total(tasks, new_solution) + tasks[i].hypothetical_gain(current_duration)
     
+    while current_duration <= 1440 and not all(is_used):
+        max_weight = -1
+        max_index = -1
+        for task in tasks:
+            if not is_used[task.get_task_id() - 1]:
+                current_weight = task.calculate_weight_1(current_duration)
+                if max_weight < current_weight:
+                    max_weight = current_weight 
+                    max_index = task.get_task_id() - 1 #smol egg
+        current_duration += tasks[max_index].get_duration()
+        if current_duration > 1440:
+            break
+        new_solution.append(max_index + 1)
+        is_used[max_index] = True
+                                    
     return new_solution
-                
+           
+def anneal(tasks, solution, randomness = 0):
+    used_original = [x for x in solution]
+    unused_original = [] # List of task IDs unused in the original solution
+    for task in tasks:
+        if task.get_task_id() not in used_original:
+            unused_original.append(task.get_task_id())
+    value_original = compute_total(tasks, solution) # Total value of the original solution
+    
+    unused = [x for x in unused_original] # List of unused task IDs that will be updated
+    solution_new = [x for x in solution] # List of task IDs in the solution that will be updated
+    value = 0 # Value of the solution that will be updated
+    locations_to_try = [i for i in range(len(solution))] # Locations to try external swaps for 
+    
+    # Search for a swap that improves the original solution
+    # Stop searching if there are no more unused tasks (we ran out of tasks)
+    while len(unused) > 0 and len(locations_to_try) > 0: 
+        # set stuff up again
+        chosen_index = random.choice(locations_to_try) # Choose a random index in location_to_try
+        locations_to_try.remove(chosen_index) # Remove the chosen index from locations_to_try
+        solution_new = [x for x in solution] # Reset the new_solution between iterations
+        unused = [x for x in unused_original] # Reset the unused tasks between iterations
+        
+        for task_id in unused:
+            solution_new = [x for x in solution] # Reset the new_solution between iterations
+            unused = [x for x in unused_original] # Reset the unused tasks between iterations
+            
+            task_index = task_id - 1
+            unused.append(solution_new[chosen_index])
+            solution_new[chosen_index] = task_id # Make the swap
+            unused.remove(task_id) # Remove ID of task chosen
+            while(calculate_duration(tasks, solution_new) > 1440):
+                if (chosen_index < len(solution_new) - 2):
+                    unused.append(solution_new[chosen_index + 1])
+                    solution_new.pop(chosen_index + 1)
+                elif (chosen_index > 0):
+                    unused.append(solution_new[chosen_index - 1])
+                    solution_new.pop(chosen_index - 1)
+                    
+            current_duration = calculate_duration(tasks, solution_new)
+            
+            # Greedy add things back into solution_new
+            is_used = [False for _ in range(len(tasks))]
+            for index in solution:
+                is_used[index - 1] = True
+            while current_duration <= 1440 and not all(is_used):
+                max_weight = -1
+                max_index = -1
+                for task in tasks:
+                    if not is_used[task.get_task_id() - 1]:
+                        current_weight = task.calculate_weight_1(current_duration)
+                        if max_weight < current_weight:
+                            max_weight = current_weight 
+                            max_index = task.get_task_id() - 1 #smol egg
+                current_duration += tasks[max_index].get_duration()
+                if current_duration > 1440:
+                    break
+                solution_new.append(max_index + 1)
+                is_used[max_index] = True
+            
+            # Return this new solution if it is better
+            if compute_total(tasks, solution_new) > value_original:
+                return solution_new
+    
+    # for i in range(len(solution_new)):
+    #     for j in range(i, len(solution_new)):
+    #         temp = solution_new[i]
+    #         solution_new[i] = solution_new[j]
+    #         solution_new[j] = temp
+        
+            
+    return solution # Return the original solution if no advantageous swap is found
+
 def calculate_duration(tasks, solution):
     duration = 0
     for index in solution:
@@ -218,8 +277,33 @@ def run_all_trials(in_directory, number_inputs, c1 = 0, c2 = 0, c3 = 0):
     
     return average/count
 
-def run_sample_trial(c1 = 0, c2 = 0, c3 = 0):
-    tasks = read_input_file("C:/CS170_Final/inputs/small/small-3.in")
+def run_anneal(trial_name, iterations, c1 = 0, c2 = 0, c3 = 0):
+    # Benchmark from greedy
+    tasks = read_input_file("C:/CS170_Final/inputs/" + trial_name)
+    greedy_output = greedy_solve(tasks, c1, c2, c3)
+    # print("greedy value: ", compute_total(tasks, greedy_output))
+    
+    # Initial naive solve
+    # output = initial_solve(tasks)
+    output = [x for x in greedy_output]
+    value = compute_total(tasks, output)
+    initial_value = value
+    # print("initial value: ", initial_value)
+    
+    previous = None
+    for i in range(iterations):
+        output = anneal(tasks, output)
+        # print(compute_total(tasks, output))
+        if previous == compute_total(tasks, output):
+            break
+        previous = compute_total(tasks, output)
+    
+    # print("final value: ", compute_total(tasks, output))
+    # print("improvement from greedy: ", compute_total(tasks, output) - compute_total(tasks, greedy_output))
+    return compute_total(tasks, output)
+      
+def run_trial(trial_name, c1 = 0, c2 = 0, c3 = 0):
+    tasks = read_input_file("C:/CS170_Final/inputs/small/" + trial_name)
     # I = preprocess_into_intervals(tasks, 10)
     # size = 0
     # print(I)
@@ -234,9 +318,10 @@ def run_sample_trial(c1 = 0, c2 = 0, c3 = 0):
     output = initial_solve(tasks)
     output_original = [x for x in output]
     value = compute_total(tasks, output)
-    print(value)
+    initial_value = value
+    print("initial value: ", initial_value)
     new_value = 0
-    for _ in range(110):
+    for _ in range(120):
         output = annealing(tasks, output)
         new_value = compute_total(tasks, output)
         while value >= new_value:
@@ -246,7 +331,9 @@ def run_sample_trial(c1 = 0, c2 = 0, c3 = 0):
         value = new_value
         output_original = [x for x in output]
         # print(value)
-    return compute_total(tasks, output)
+    print("final value: ", compute_total(tasks, output))
+    print("improvement from greedy: ", compute_total(tasks, output) - compute_total(tasks, greedy_solve(tasks, c1, c2, c3)))
+    return output
     
     # output = greedy_solve(tasks, c1, c2, c3)
     # value = compute_total(tasks, output)
@@ -255,7 +342,8 @@ def run_sample_trial(c1 = 0, c2 = 0, c3 = 0):
     #     output = annealing(tasks, output)
     # return compute_total(tasks, output)    
     
-# Here's an example of how to run your solver.
+
+# RUNNING THE SOLVER
 directory = "C:/CS170_Final/inputs/"
 input_100 = "small/"
 input_150 = "medium/"
@@ -276,8 +364,17 @@ input_200 = "large/"
 #                 average[2] = j
 #                 average[3] = k
 # print(average)
-                       
-print(run_sample_trial())
+
+# best = 0
+# for i in range(10):         
+#     current =  run_anneal("large/large-1.in", 150)   
+#     print(current)          
+#     if current > best:
+#         best = current
+# print("best is: ", best)
+
+print(run_anneal("small/small-1.in", 150))
+        
 # print(run_all_trials(directory, input_100))
 # print(run_all_trials(directory, input_150))
 # print(run_all_trials(directory, input_200))
