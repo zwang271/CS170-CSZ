@@ -115,7 +115,7 @@ def initial_solve(tasks):
 def annealing(tasks, solution):
     num_tasks = len(tasks)
     is_used = [False for _ in range(num_tasks)]
-    for index in solution_new:
+    for index in solution:
         is_used[index - 1] = True
     is_used_original = [b for b in is_used]
         
@@ -205,7 +205,7 @@ def anneal(tasks, solution, randomness = 0):
             
             # Greedy add things back into solution_new
             is_used = [False for _ in range(len(tasks))]
-            for index in solution:
+            for index in solution_new:
                 is_used[index - 1] = True
             while current_duration <= 1440 and not all(is_used):
                 max_weight = -1
