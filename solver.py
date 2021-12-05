@@ -350,6 +350,7 @@ def run_anneal(trial_name, iterations, verbose = False, c1 = 0, c2 = 0, c3 = 0):
     previous = None
     for i in range(iterations):
         output = anneal(tasks, output)
+        check_solution(output, trial_name)
         if verbose:
             print(compute_total(tasks, output))
         if previous == compute_total(tasks, output):
@@ -359,21 +360,48 @@ def run_anneal(trial_name, iterations, verbose = False, c1 = 0, c2 = 0, c3 = 0):
     if verbose:
         print("final value: ", compute_total(tasks, output))
         print("improvement from greedy: ", compute_total(tasks, output) - compute_total(tasks, greedy_output))
+        
+    output_path = "C:/CS170_Final/outputs/" + trial_name[:-3] + '.out'
+    write_output_file(output_path, output)
+    
     return output
+
+def check_solution(output, trial_name = ""):
+    for i in range(len(output)):
+        for j in range(i + 1, len(output)):
+            if output[i] == output[j]:
+                # print("duplicate output", output[i], trial_name)
+                # print(output)
+                return False
  
 def run_anneal_all(size, iterations = 1000, c1 = 0, c2 = 0, c3 = 0):
     average = 0
-    count = 0
+    count = 1
     for input_path in os.listdir("C:/CS170_Final/inputs/" + size):
-        tasks = read_input_file("C:/CS170_Final/inputs/" + size + input_path)
-        output = run_anneal(size + input_path, iterations)
-        value = compute_total(tasks, output)
-        print(input_path + ": ", value)
-        average += value
-        count += 1
-        
-        output_path = "C:/CS170_Final/outputs/" + size + input_path[:-3] + '.out'
-        write_output_file(output_path, output)
+        if int(input_path[6:][:-3]) in range(3, 10) or int(input_path[6:][:-3]) in range(25, 100) or int(input_path[6:][:-3]) in range(244, 301):
+            tasks = read_input_file("C:/CS170_Final/inputs/" + size + input_path)
+            
+            # best = 0
+            # best_output = []
+            # for i in range(1):         
+            #     current =  run_anneal(size + input_path, iterations)   
+            #     print(compute_total(tasks, current))          
+            #     if compute_total(tasks, current) > best:
+            #         best = compute_total(tasks, current)
+            #         best_output = current
+            # output = best_output
+            
+            output = run_anneal(size + input_path, iterations)
+            while check_solution(output) == False:
+                output = run_anneal(size + input_path, iterations)
+            
+            value = compute_total(tasks, output)
+            print(input_path + ": ", value)
+            average += value
+            count += 1
+            
+            output_path = "C:/CS170_Final/outputs/" + size + input_path[:-3] + '.out'
+            write_output_file(output_path, output)
     return average/count
 
 
@@ -407,8 +435,11 @@ input_200 = "large/"
 #         best = current
 # print("best is: ", best)
 
-# run_anneal("small/small-102.in", 100)
-run_anneal_all("small/")
+run_anneal("medium/medium-174.in", 1000, True)
+
+# size = "large/"
+# print("running ", size)
+# run_anneal_all(size)
         
 # print(run_all_trials(directory, input_100))
 # print(run_all_trials(directory, input_150))
