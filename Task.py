@@ -96,11 +96,11 @@ class Task:
         """
         return self.get_late_benefit(time + self.get_duration() - self.get_deadline())
     
-    def calculate_weight_1(self, time):
+    def calculate_weight_1(self, time, i_count = 0):
         """[summary]
         Divide by duration of task to prioritize tasks that take shorter time
         """
-        return self.hypothetical_gain(time)/self.get_duration()
+        return self.hypothetical_gain(time)
     
     def calculate_weight_2(self, time):
         """[summary]
