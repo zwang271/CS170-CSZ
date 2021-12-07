@@ -435,7 +435,7 @@ input_200 = "large/"
 #         best = current
 # print("best is: ", best)
 
-run_anneal("medium/medium-174.in", 1000, True)
+# run_anneal("medium/medium-174.in", 1000, True)
 
 # size = "large/"
 # print("running ", size)

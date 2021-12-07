@@ -20,7 +20,7 @@ def read_array(output_file):
                 break
     return output
 
-input = "medium/medium-26.in"
+input = "large/large-243.in"
 run_anneal(input, 2000, True)
 print(read_array(OUTPUT_DIRECTORY + "outputs/" + input[:-3] + '.out'))
 

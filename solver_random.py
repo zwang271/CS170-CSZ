@@ -51,7 +51,7 @@ def initial_solve(tasks):
         i += 1
     return solution
        
-def anneal(tasks, solution, toggle = False, i_c = 0):
+def anneal(tasks, solution, p, toggle = False, i_c = 0):
     used_original = [x for x in solution]
     unused_original = [] # List of task IDs unused in the original solution
     for task in tasks:
@@ -112,7 +112,7 @@ def anneal(tasks, solution, toggle = False, i_c = 0):
             
             total_computed =compute_total(tasks, solution_new)
             # Return this new solution if it is better
-            if  total_computed > value_original or ((toggle and random.randint(0, 800) > i_c) and (total_computed/value_original  > (i_c+200)/(i_c+201))):
+            if  total_computed > value_original or ((toggle and random.randint(0, 0.8*p) > i_c) and (total_computed/value_original  > (i_c+0.2*p)/(i_c+0.2*p+1))):
                 while_break_flag = True
                 break
         if while_break_flag:
@@ -139,7 +139,7 @@ def anneal(tasks, solution, toggle = False, i_c = 0):
             solution_swap[i] = solution_swap[j]
             solution_swap[j] = temp
             total_computed = compute_total(tasks, solution_swap)
-            if total_computed > value_original or ((toggle and random.randint(0, 400) > i_c) and (total_computed/value_original  > (i_c+200)/(i_c+201))):
+            if total_computed > value_original or ((toggle and random.randint(0, 0.8*p) > i_c) and (total_computed/value_original  > (i_c+0.2*p)/(i_c+0.2*p+1))):
                 return solution_swap
     
     if while_break_flag:
@@ -199,7 +199,7 @@ def run_anneal(trial_name, iterations, verbose = True, c1 = 0, c2 = 0, c3 = 0):
     toggle = False
     
     for i in range(iterations):
-        output = anneal(tasks, output, toggle, i)
+        output = anneal(tasks, output, iterations, toggle, i)
         output_total = compute_total(tasks, output)
         best_output_total = compute_total(tasks, best_output)
         if output_total > best_output_total:
@@ -237,15 +237,17 @@ def run_anneal_all(size, iterations = 1250, c1 = 0, c2 = 0, c3 = 0):
         write_output_file(output_path, output)
     return average/count
 
-
 # RUNNING THE SOLVER
 
-size = "medium"
-# while True:
-#     for i in range(1, 301):
-#         run_anneal(size + "/" + size + "-" + str(i) + ".in", 1500)
+size = "small"
 
-run_anneal(size + "/" + size + "-" + str(1) + ".in", 500)
+i = 185
+while True:
+    while i <= 300:
+        run_anneal(size + "/" + size + "-" + str(i) + ".in", 1000)
+        i += 1
+
+# run_anneal(size + "/" + size + "-" + str(4) + ".in", 100)
 
 # run_anneal_all("small/")
         
